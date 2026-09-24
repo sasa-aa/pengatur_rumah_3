@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simulasi Desainer Interior - by Sasa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-watermark {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Prevent unwanted touch scrolling during drag on mobile devices */
+        .touch-none {
+            touch-action: none !important;
+        }
+
+        /* Custom Scrollbar for Catalog and Modals */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Active selection border styling */
+        .furniture-active {
+            outline: 2.5px dashed #0d9488;
+            outline-offset: 4px;
+        }
+
+        /* Pattern wallpapers for wall customizer */
+        .wallpaper-stripes {
+            background-image: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.15) 20px, rgba(255,255,255,0.15) 40px);
+        }
+        .wallpaper-dots {
+            background-image: radial-gradient(rgba(255,255,255,0.2) 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+        .wallpaper-modern {
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(225deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%), linear-gradient(315deg, rgba(255,255,255,0.1) 25%, transparent 25%);
+            background-position: 10px 0, 10px 0, 0 0, 0 0;
+            background-size: 20px 20px;
+        }
+
+        /* Thumb-friendly target sizing for mobile devices */
+        .btn-touch {
+            min-width: 44px;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen w-screen overflow-hidden flex flex-col select-none">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 px-3 md:px-5 py-2.5 flex items-center justify-between z-30 shrink-0 shadow-sm">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-teal-600/20">
+                <i class="fa-solid fa-couch"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-bold text-slate-800 text-base leading-tight">Studio Interior</h1>
+                    <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Multi-User Ready</span>
+                </div>
+                <p class="text-xs text-slate-500 hidden sm:block">Simulasi Desain Interaktif oleh <span class="font-bold text-teal-600">Sasa</span></p>
+            </div>
+        </div>
+
+        <!-- Action Controls Bar -->
+        <div class="flex items-center gap-1 sm:gap-2">
+            <button id="btn-undo" onclick="undo()" title="Urungkan (Undo)" class="btn-touch p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition font-medium disabled:opacity-40">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button id="btn-redo" onclick="redo()" title="Ulangi (Redo)" class="btn-touch p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm transition font-medium disabled:opacity-40">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            
+            <div class="h-6 w-[1px] bg-slate-200 mx-0.5 sm:mx-1"></div>
+
+            <!-- Draft & Share Options -->
+            <button onclick="saveToLocalStorage()" title="Simpan Draf di Browser HP/PC" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-floppy-disk text-teal-600"></i>
+                <span class="hidden md:inline">Simpan Draf</span>
+            </button>
+
+            <button onclick="openShareModal()" title="Bagikan / Ekspor Kode JSON Desain" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <i class="fa-solid fa-share-nodes text-indigo-600"></i>
+                <span class="hidden md:inline">Berbagi Kode</span>
+            </button>
+
+            <button onclick="clearRoom()" title="Bersihkan Ruangan" class="btn-touch p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-sm transition font-medium">
+                <i class="fa-solid fa-trash-arrow-up"></i>
+            </button>
+
+            <div class="h-6 w-[1px] bg-slate-200 mx-0.5 sm:mx-1"></div>
+
+            <button onclick="togglePreviewMode()" class="btn-touch px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-eye"></i>
+                <span class="hidden sm:inline">Preview</span>
+            </button>
+            
+            <button onclick="exportDesignImage()" class="btn-touch px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs md:text-sm font-semibold transition flex items-center gap-1.5 shadow-md shadow-teal-600/20">
+                <i class="fa-solid fa-download"></i>
+                <span>Simpan Gambar</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- Left Sidebar: Furniture Catalog (Katalog di Sebelah Kiri) -->
+        <aside id="sidebar-catalog" class="w-80 md:w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-lg md:shadow-none transition-all duration-300 absolute md:relative inset-y-0 left-0 -translate-x-full md:translate-x-0">
+            <!-- Sidebar Header & Search -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-teal-600"></i> Katalog Furnitur
+                    </h2>
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 btn-touch">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Search Box -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" id="search-input" oninput="filterCatalog()" placeholder="Cari sofa, meja, tanaman, bed..." class="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition">
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex border-b border-slate-200 overflow-x-auto no-scrollbar bg-white text-xs font-semibold">
+                <button onclick="selectCategory('all')" id="cat-all" class="cat-btn px-3 py-2.5 border-b-2 border-teal-600 text-teal-600 whitespace-nowrap flex-1 text-center">Semua</button>
+                <button onclick="selectCategory('living')" id="cat-living" class="cat-btn px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex-1 text-center">Tamu</button>
+                <button onclick="selectCategory('family')" id="cat-family" class="cat-btn px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex-1 text-center">Keluarga</button>
+                <button onclick="selectCategory('bedroom')" id="cat-bedroom" class="cat-btn px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex-1 text-center">Kamar</button>
+                <button onclick="selectCategory('study')" id="cat-study" class="cat-btn px-3 py-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 whitespace-nowrap flex-1 text-center">Belajar</button>
+            </div>
+
+            <!-- Item List Grid -->
+            <div id="catalog-grid" class="flex-1 overflow-y-auto p-3 grid grid-cols-2 gap-2.5">
+                <!-- Furniture items injected dynamically via JS -->
+            </div>
+        </aside>
+
+        <!-- Sidebar Mobile Toggle Overlay Button -->
+        <button id="mobile-catalog-toggle" onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 left-4 z-20 bg-white border border-slate-200 text-slate-700 rounded-full p-3 shadow-lg flex items-center justify-center btn-touch">
+            <i class="fa-solid fa-plus text-teal-600 text-lg"></i>
+        </button>
+
+        <!-- Center Main Workspace: Room Canvas -->
+        <main class="flex-1 flex flex-col bg-slate-200 relative overflow-hidden">
+            
+            <!-- Room Controls Bar -->
+            <div class="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-10 text-xs">
+                <!-- Room Preset Selector -->
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-slate-600 hidden sm:inline">Jenis Ruangan:</span>
+                    <select id="room-preset-select" onchange="changeRoomType(this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                        <option value="living">Ruang Tamu Minimalis</option>
+                        <option value="family">Ruang Keluarga Hangat</option>
+                        <option value="bedroom">Kamar Tidur Modern</option>
+                    </select>
+                </div>
+
+                <!-- Room Wall Customizers -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-slate-500">Warna Dinding:</span>
+                        <input type="color" id="wall-color-picker" value="#f1f5f9" onchange="changeWallColor(this.value)" class="w-7 h-7 rounded cursor-pointer border-0 bg-transparent">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-slate-500">Wallpaper:</span>
+                        <select onchange="changeWallpaper(this.value)" class="bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 font-medium text-slate-700 focus:outline-none">
+                            <option value="none">Polos</option>
+                            <option value="stripes">Garis-Garis</option>
+                            <option value="dots">Bintik Modern</option>
+                            <option value="modern">Geometris</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Viewport -->
+            <div id="canvas-container" class="flex-1 relative overflow-hidden flex items-center justify-center p-2 sm:p-6">
+                <!-- Room Canvas Element -->
+                <div id="room-canvas" class="relative w-full h-full max-w-5xl max-h-[750px] bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white touch-none transition-colors duration-500">
+                    
+                    <!-- Wall Region -->
+                    <div id="room-wall" class="absolute top-0 left-0 right-0 h-[68%] transition-colors duration-300">
+                        <div id="wallpaper-overlay" class="absolute inset-0 opacity-40"></div>
+                        <!-- Window Decor -->
+                        <div class="absolute top-10 right-12 w-32 h-44 bg-sky-200/50 border-4 border-white/80 rounded-t-full shadow-inner overflow-hidden flex flex-col justify-between p-1">
+                            <div class="w-full h-full border border-white/60 rounded-t-full relative">
+                                <div class="absolute inset-x-0 top-1/2 h-1 bg-white/60"></div>
+                                <div class="absolute inset-y-0 left-1/2 w-1 bg-white/60"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floor Region -->
+                    <div id="room-floor" class="absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-800 to-amber-950 border-t-8 border-amber-900/30 shadow-inner">
+                        <div class="w-full h-full opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                    </div>
+
+                    <!-- Room Items Layer -->
+                    <div id="furniture-layer" class="absolute inset-0"></div>
+
+                    <!-- Fixed Top-Center Control Toolbar (Always stays at top center of canvas when an item is selected) -->
+                    <div id="floating-toolbar" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white backdrop-blur-md rounded-2xl px-3 py-2 shadow-2xl flex items-center gap-1.5 border border-slate-700/80 transition-all duration-200">
+                        <button onclick="rotateActiveItem(-15)" title="Putar Kiri" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-rotate-left text-teal-400"></i></button>
+                        <button onclick="rotateActiveItem(15)" title="Putar Kanan" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-rotate-right text-teal-400"></i></button>
+                        <div class="w-[1px] h-5 bg-slate-700"></div>
+                        <button onclick="scaleActiveItem(1.1)" title="Perbesar" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                        <button onclick="scaleActiveItem(0.9)" title="Perkecil" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                        <div class="w-[1px] h-5 bg-slate-700"></div>
+                        <button onclick="changeLayer('up')" title="Bawa Lebih Maju" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-layer-group"></i>▲</button>
+                        <button onclick="changeLayer('down')" title="Bawa Lebih Mundur" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-layer-group"></i>▼</button>
+                        <div class="w-[1px] h-5 bg-slate-700"></div>
+                        <button onclick="duplicateActiveItem()" title="Duplikasi" class="btn-touch p-2 hover:bg-slate-700/80 text-teal-400 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-clone"></i></button>
+                        <button onclick="deleteActiveItem()" title="Hapus" class="btn-touch p-2 hover:bg-rose-600/80 text-rose-400 hover:text-white rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+
+                    <!-- Watermark Hak Cipta di Pojok Kanan Bawah Canvas -->
+                    <div class="absolute bottom-3 right-4 z-20 pointer-events-none select-none text-right">
+                        <p class="font-watermark text-xl sm:text-2xl font-bold text-white/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">by Sasa</p>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Share & Code Export/Import Modal -->
+    <div id="share-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-100 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-teal-600"></i> Bagikan / Ekspor Kode Desain
+                </h3>
+                <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600 btn-touch">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Salin kode desain JSON di bawah untuk dibagikan ke pengguna lain, atau tempelkan kode desain dari teman untuk mengimpor karyanya.
+            </p>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Kode JSON Desain Anda:</label>
+                <textarea id="share-json-code" rows="5" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-teal-500 select-all"></textarea>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+                <button onclick="copyShareCode()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-teal-600/20">
+                    <i class="fa-solid fa-copy"></i> Salin Kode
+                </button>
+                <button onclick="importShareCode()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
+                    <i class="fa-solid fa-file-import"></i> Impor Kode Desain
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Preview Overlay -->
+    <div id="preview-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4">
+        <div class="absolute top-4 right-4 flex items-center gap-3">
+            <button onclick="exportDesignImage()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-sm shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-download"></i> Unduh Hasil Desain
+            </button>
+            <button onclick="togglePreviewMode()" class="w-10 h-10 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="preview-container" class="w-full h-full max-w-5xl max-h-[85vh] flex items-center justify-center">
+            <!-- Cloned canvas view rendered here -->
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 opacity-0 translate-y-4 pointer-events-none flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-teal-400" id="toast-icon"></i>
+        <span id="toast-message">Pesan notifikasi</span>
+    </div>
+
+    <script>
+        // Catalog Database (20+ Items Vector SVG)
+        const furnitureCatalog = [
+            // RUANG TAMU
+            {
+                id: 'sofa-minimalist',
+                name: 'Sofa Minimalis Modern',
+                category: 'living',
+                width: 180,
+                height: 90,
+                svg: `<svg viewBox="0 0 180 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="20" width="160" height="50" rx="12" fill="#0f766e"/>
+                    <rect x="20" y="10" width="140" height="25" rx="8" fill="#115e59"/>
+                    <rect x="5" y="35" width="20" height="40" rx="6" fill="#134e4a"/>
+                    <rect x="155" y="35" width="20" height="40" rx="6" fill="#134e4a"/>
+                    <rect x="25" y="30" width="62" height="35" rx="6" fill="#14b8a6"/>
+                    <rect x="93" y="30" width="62" height="35" rx="6" fill="#14b8a6"/>
+                    <rect x="20" y="70" width="8" height="15" rx="2" fill="#475569"/>
+                    <rect x="152" y="70" width="8" height="15" rx="2" fill="#475569"/>
+                </svg>`
+            },
+            {
+                id: 'coffee-table',
+                name: 'Meja Kopi Modern',
+                category: 'living',
+                width: 110,
+                height: 55,
+                svg: `<svg viewBox="0 0 110 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="55" cy="20" rx="50" ry="15" fill="#d97706"/>
+                    <ellipse cx="55" cy="18" rx="48" ry="13" fill="#f59e0b"/>
+                    <rect x="25" y="20" width="6" height="30" fill="#78350f" transform="rotate(-10 25 20)"/>
+                    <rect x="80" y="20" width="6" height="30" fill="#78350f" transform="rotate(10 80 20)"/>
+                    <circle cx="45" cy="18" r="4" fill="#334155"/>
+                    <rect x="55" y="15" width="12" height="6" rx="1" fill="#e2e8f0"/>
+                </svg>`
+            },
+            {
+                id: 'tv-unit',
+                name: 'Rak & TV LED 55"',
+                category: 'living',
+                width: 160,
+                height: 120,
+                svg: `<svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="15" y="10" width="130" height="75" rx="4" fill="#0f172a"/>
+                    <rect x="20" y="15" width="120" height="65" rx="2" fill="#1e293b"/>
+                    <rect x="72" y="85" width="16" height="15" fill="#475569"/>
+                    <rect x="55" y="100" width="50" height="5" rx="2" fill="#334155"/>
+                    <rect x="0" y="102" width="160" height="18" rx="3" fill="#b45309"/>
+                    <rect x="10" y="106" width="40" height="10" rx="2" fill="#d97706"/>
+                    <rect x="110" y="106" width="40" height="10" rx="2" fill="#d97706"/>
+                </svg>`
+            },
+            {
+                id: 'accent-chair',
+                name: 'Kursi Aksen Nordic',
+                category: 'living',
+                width: 80,
+                height: 85,
+                svg: `<svg viewBox="0 0 80 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="15" y="10" width="50" height="45" rx="10" fill="#f43f5e"/>
+                    <rect x="10" y="45" width="60" height="25" rx="8" fill="#e11d48"/>
+                    <rect x="18" y="68" width="6" height="16" fill="#78350f" transform="rotate(-8 18 68)"/>
+                    <rect x="56" y="68" width="6" height="16" fill="#78350f" transform="rotate(8 56 68)"/>
+                </svg>`
+            },
+            {
+                id: 'carpet-round',
+                name: 'Karpet Motif Geometry',
+                category: 'living',
+                width: 200,
+                height: 100,
+                svg: `<svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="100" cy="50" rx="95" ry="45" fill="#e2e8f0"/>
+                    <ellipse cx="100" cy="50" rx="80" ry="36" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 6"/>
+                    <ellipse cx="100" cy="50" rx="55" ry="24" fill="#cbd5e1"/>
+                </svg>`
+            },
+
+            // RUANG KELUARGA
+            {
+                id: 'sofa-sectional-l',
+                name: 'Sofa L Sectional',
+                category: 'family',
+                width: 220,
+                height: 130,
+                svg: `<svg viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 20 H210 V110 H140 V70 H10 Z" fill="#334155" rx="10"/>
+                    <rect x="20" y="28" width="180" height="35" rx="6" fill="#475569"/>
+                    <rect x="148" y="65" width="52" height="40" rx="6" fill="#475569"/>
+                    <circle cx="50" cy="45" r="10" fill="#f59e0b"/>
+                    <circle cx="90" cy="45" r="10" fill="#10b981"/>
+                </svg>`
+            },
+            {
+                id: 'credenza-wood',
+                name: 'Buffet Konsol Kayu',
+                category: 'family',
+                width: 140,
+                height: 70,
+                svg: `<svg viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="10" width="130" height="50" rx="4" fill="#b45309"/>
+                    <rect x="12" y="16" width="36" height="38" rx="2" fill="#d97706"/>
+                    <rect x="52" y="16" width="36" height="38" rx="2" fill="#d97706"/>
+                    <rect x="92" y="16" width="36" height="38" rx="2" fill="#d97706"/>
+                    <rect x="20" y="60" width="8" height="10" fill="#78350f"/>
+                    <rect x="112" y="60" width="8" height="10" fill="#78350f"/>
+                </svg>`
+            },
+            {
+                id: 'floor-lamp',
+                name: 'Lampu Lantai Sudut',
+                category: 'family',
+                width: 50,
+                height: 130,
+                svg: `<svg viewBox="0 0 50 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 35 L25 10 L40 35 Z" fill="#fef08a" opacity="0.8"/>
+                    <path d="M15 35 L25 15 L35 35 Z" fill="#fde047"/>
+                    <line x1="25" y1="35" x2="25" y2="120" stroke="#334155" stroke-width="4"/>
+                    <ellipse cx="25" cy="122" rx="15" ry="5" fill="#1e293b"/>
+                </svg>`
+            },
+            {
+                id: 'beanbag',
+                name: 'Beanbag Kursi Santai',
+                category: 'family',
+                width: 75,
+                height: 70,
+                svg: `<svg viewBox="0 0 75 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 60 C5 30 20 10 37 10 C55 10 70 30 60 60 C50 70 25 70 15 60 Z" fill="#8b5cf6"/>
+                    <path d="M22 55 C15 35 25 20 37 20 C50 20 58 35 52 55 Z" fill="#a855f7"/>
+                </svg>`
+            },
+
+            // KAMAR TIDUR
+            {
+                id: 'bed-king',
+                name: 'Tempat Tidur King Size',
+                category: 'bedroom',
+                width: 170,
+                height: 180,
+                svg: `<svg viewBox="0 0 170 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="5" width="150" height="25" rx="4" fill="#475569"/>
+                    <rect x="15" y="25" width="140" height="145" rx="8" fill="#e2e8f0"/>
+                    <rect x="25" y="35" width="55" height="35" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                    <rect x="90" y="35" width="55" height="35" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+                    <path d="M 15 80 Q 85 90 155 80 L 155 168 A 6 6 0 0 1 149 174 L 21 174 A 6 6 0 0 1 15 168 Z" fill="#6366f1"/>
+                </svg>`
+            },
+            {
+                id: 'wardrobe',
+                name: 'Lemari Pakaian Minimalis',
+                category: 'bedroom',
+                width: 120,
+                height: 160,
+                svg: `<svg viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="110" height="150" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+                    <line x1="60" y1="5" x2="60" y2="155" stroke="#cbd5e1" stroke-width="2"/>
+                    <rect x="50" y="70" width="4" height="20" rx="2" fill="#64748b"/>
+                    <rect x="66" y="70" width="4" height="20" rx="2" fill="#64748b"/>
+                </svg>`
+            },
+            {
+                id: 'nightstand',
+                name: 'Nakas / Meja Samping',
+                category: 'bedroom',
+                width: 55,
+                height: 55,
+                svg: `<svg viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="45" height="45" rx="6" fill="#d97706"/>
+                    <rect x="9" y="10" width="37" height="16" rx="3" fill="#f59e0b"/>
+                    <rect x="9" y="30" width="37" height="16" rx="3" fill="#f59e0b"/>
+                    <circle cx="27.5" cy="18" r="2" fill="#78350f"/>
+                    <circle cx="27.5" cy="38" r="2" fill="#78350f"/>
+                </svg>`
+            },
+            {
+                id: 'dressing-table',
+                name: 'Meja Rias & Cermin',
+                category: 'bedroom',
+                width: 90,
+                height: 120,
+                svg: `<svg viewBox="0 0 90 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <ellipse cx="45" cy="35" rx="25" ry="30" fill="#e0f2fe" stroke="#38bdf8" stroke-width="3"/>
+                    <rect x="10" y="70" width="70" height="35" rx="4" fill="#b45309"/>
+                    <rect x="18" y="75" width="24" height="25" rx="2" fill="#d97706"/>
+                    <rect x="48" y="75" width="24" height="25" rx="2" fill="#d97706"/>
+                    <rect x="20" y="105" width="6" height="12" fill="#78350f"/>
+                    <rect x="64" y="105" width="6" height="12" fill="#78350f"/>
+                </svg>`
+            },
+
+            // AREA BELAJAR & DEKORASI
+            {
+                id: 'study-desk',
+                name: 'Meja Belajar Modern',
+                category: 'study',
+                width: 130,
+                height: 75,
+                svg: `<svg viewBox="0 0 130 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="10" width="120" height="15" rx="3" fill="#e2e8f0"/>
+                    <rect x="12" y="25" width="8" height="45" fill="#94a3b8"/>
+                    <rect x="110" y="25" width="8" height="45" fill="#94a3b8"/>
+                    <rect x="30" y="2" width="30" height="8" rx="2" fill="#1e293b"/>
+                    <rect x="70" y="5" width="15" height="5" rx="1" fill="#f43f5e"/>
+                </svg>`
+            },
+            {
+                id: 'office-chair',
+                name: 'Kursi Belajar Ergonomis',
+                category: 'study',
+                width: 65,
+                height: 80,
+                svg: `<svg viewBox="0 0 65 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="15" y="5" width="35" height="40" rx="6" fill="#0284c7"/>
+                    <rect x="10" y="42" width="45" height="12" rx="4" fill="#0369a1"/>
+                    <line x1="32.5" y1="54" x2="32.5" y2="68" stroke="#334155" stroke-width="5"/>
+                    <ellipse cx="32.5" cy="72" rx="20" ry="5" fill="#1e293b"/>
+                </svg>`
+            },
+            {
+                id: 'plant-monstera',
+                name: 'Tanaman Hias Pot',
+                category: 'study',
+                width: 60,
+                height: 90,
+                svg: `<svg viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="30" r="16" fill="#15803d"/>
+                    <circle cx="40" cy="25" r="18" fill="#16a34a"/>
+                    <circle cx="30" cy="42" r="15" fill="#22c55e"/>
+                    <path d="M20 60 L40 60 L36 85 L24 85 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+                </svg>`
+            },
+            {
+                id: 'wall-art',
+                name: 'Lukisan Dinding Minimalis',
+                category: 'study',
+                width: 70,
+                height: 90,
+                svg: `<svg viewBox="0 0 70 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="60" height="80" fill="#ffffff" stroke="#1e293b" stroke-width="4"/>
+                    <circle cx="35" cy="40" r="18" fill="#f59e0b"/>
+                    <path d="M 15 65 Q 35 45 55 65 Z" fill="#0f766e"/>
+                </svg>`
+            },
+            {
+                id: 'bookshelf',
+                name: 'Rak Buku Tingkat',
+                category: 'study',
+                width: 85,
+                height: 140,
+                svg: `<svg viewBox="0 0 85 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="5" y="5" width="75" height="130" rx="4" fill="#b45309"/>
+                    <rect x="10" y="10" width="65" height="35" fill="#d97706"/>
+                    <rect x="10" y="50" width="65" height="35" fill="#d97706"/>
+                    <rect x="10" y="90" width="65" height="40" fill="#d97706"/>
+                    <rect x="15" y="20" width="8" height="20" fill="#ef4444"/>
+                    <rect x="25" y="18" width="10" height="22" fill="#3b82f6"/>
+                    <rect x="37" y="22" width="6" height="18" fill="#10b981"/>
+                    <rect x="15" y="60" width="12" height="20" fill="#8b5cf6"/>
+                </svg>`
+            }
+        ];
+
+        // Global State Variables
+        let activeRoomPreset = 'living';
+        let placedItems = [];
+        let activeItemId = null;
+        let activeCategory = 'all';
+        let historyStack = [];
+        let historyStep = -1;
+
+        // Drag State Variables
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        window.onload = function() {
+            renderCatalog();
+            setupRoomPreset('living');
+            setupCanvasInteraction();
+            
+            // Check if user has saved draft in LocalStorage
+            loadFromLocalStorage(true);
+            
+            if(placedItems.length === 0) {
+                // Default room arrangement preset
+                addFurnitureToRoom('sofa-minimalist', 120, 220);
+                addFurnitureToRoom('coffee-table', 155, 300);
+                addFurnitureToRoom('plant-monstera', 340, 180);
+            }
+            
+            saveHistory(); // initial state
+        };
+
+        // Render Catalog Grid Left Sidebar
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            grid.innerHTML = '';
+
+            const filtered = furnitureCatalog.filter(item => {
+                const matchesCat = (activeCategory === 'all' || item.category === activeCategory);
+                const matchesSearch = item.name.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if(filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 py-8 text-center text-slate-400 text-xs">Tidak ada furnitur ditemukan</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-xl p-2.5 flex flex-col items-center cursor-pointer transition group relative";
+                card.onclick = () => addFurnitureToRoom(item.id);
+
+                card.innerHTML = `
+                    <div class="w-full h-20 flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
+                        ${item.svg}
+                    </div>
+                    <span class="text-xs font-semibold text-slate-700 text-center mt-1 line-clamp-1">${item.name}</span>
+                    <span class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-plus-circle text-teal-600"></i> Tambah</span>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('border-teal-600', 'text-teal-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`cat-${cat}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-500');
+                activeBtn.classList.add('border-teal-600', 'text-teal-600');
+            }
+            renderCatalog();
+        }
+
+        function filterCatalog() {
+            renderCatalog();
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar-catalog');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Room Customizations
+        function setupRoomPreset(preset) {
+            const wall = document.getElementById('room-wall');
+            const floor = document.getElementById('room-floor');
+
+            if(preset === 'living') {
+                wall.style.backgroundColor = '#e2e8f0';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-800 to-amber-950 border-t-8 border-amber-900/30 shadow-inner";
+            } else if(preset === 'family') {
+                wall.style.backgroundColor = '#fef3c7';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-700 to-amber-900 border-t-8 border-amber-800/30 shadow-inner";
+            } else if(preset === 'bedroom') {
+                wall.style.backgroundColor = '#e0e7ff';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-slate-700 to-slate-900 border-t-8 border-slate-800/30 shadow-inner";
+            }
+        }
+
+        function changeRoomType(val) {
+            activeRoomPreset = val;
+            setupRoomPreset(val);
+            showToast(`Preset ruangan diubah`);
+        }
+
+        function changeWallColor(color) {
+            document.getElementById('room-wall').style.backgroundColor = color;
+        }
+
+        function changeWallpaper(style) {
+            const overlay = document.getElementById('wallpaper-overlay');
+            overlay.className = 'absolute inset-0 opacity-40 ';
+            if(style !== 'none') {
+                overlay.classList.add(`wallpaper-${style}`);
+            }
+        }
+
+        // Add Furniture to Canvas
+        function addFurnitureToRoom(templateId, customX = null, customY = null) {
+            const template = furnitureCatalog.find(f => f.id === templateId);
+            if(!template) return;
+
+            const newItem = {
+                instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                templateId: template.id,
+                x: customX !== null ? customX : (100 + (placedItems.length * 15) % 200),
+                y: customY !== null ? customY : (120 + (placedItems.length * 15) % 150),
+                width: template.width,
+                height: template.height,
+                rotation: 0,
+                scale: 1,
+                zIndex: placedItems.length + 1,
+                svg: template.svg
+            };
+
+            placedItems.push(newItem);
+            renderRoomItems();
+            setActiveItem(newItem.instanceId);
+            saveHistory();
+
+            if(!customX) {
+                showToast(`${template.name} ditambahkan`);
+            }
+
+            // Close sidebar on mobile
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar-catalog').classList.add('-translate-x-full');
+            }
+        }
+
+        function renderRoomItems() {
+            const container = document.getElementById('furniture-layer');
+            container.innerHTML = '';
+
+            placedItems.forEach(item => {
+                const el = document.createElement('div');
+                el.id = item.instanceId;
+                el.className = `absolute cursor-grab active:cursor-grabbing transition-shadow ${activeItemId === item.instanceId ? 'furniture-active' : ''}`;
+                el.style.left = `${item.x}px`;
+                el.style.top = `${item.y}px`;
+                el.style.width = `${item.width * item.scale}px`;
+                el.style.height = `${item.height * item.scale}px`;
+                el.style.transform = `rotate(${item.rotation}deg)`;
+                el.style.zIndex = item.zIndex;
+
+                el.innerHTML = item.svg;
+
+                // Event Listeners for Touch & Mouse Drag
+                el.addEventListener('mousedown', (e) => startDrag(e, item.instanceId));
+                el.addEventListener('touchstart', (e) => startDrag(e, item.instanceId), {passive: false});
+
+                container.appendChild(el);
+            });
+
+            updateFloatingToolbar();
+        }
+
+        function setActiveItem(id) {
+            activeItemId = id;
+            renderRoomItems();
+        }
+
+        // Drag Handler
+        function startDrag(e, id) {
+            e.stopPropagation();
+            if(e.touches && e.touches.length > 1) return;
+
+            setActiveItem(id);
+            isDragging = true;
+
+            const item = placedItems.find(i => i.instanceId === id);
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            dragOffsetX = clientX - item.x;
+            dragOffsetY = clientY - item.y;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('touchmove', onDrag, {passive: false});
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function onDrag(e) {
+            if(!isDragging || !activeItemId) return;
+            e.preventDefault(); // Lock page scrolling while dragging item
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const canvasBounds = document.getElementById('room-canvas').getBoundingClientRect();
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+
+            if(item) {
+                item.x = clientX - canvasBounds.left - 40;
+                item.y = clientY - canvasBounds.top - 40;
+
+                const el = document.getElementById(item.instanceId);
+                if(el) {
+                    el.style.left = `${item.x}px`;
+                    el.style.top = `${item.y}px`;
+                }
+            }
+        }
+
+        function endDrag() {
+            if(isDragging) {
+                isDragging = false;
+                saveHistory();
+            }
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+        }
+
+        function setupCanvasInteraction() {
+            const canvas = document.getElementById('room-canvas');
+            canvas.addEventListener('click', (e) => {
+                if(e.target === canvas || e.target.id === 'room-wall' || e.target.id === 'room-floor' || e.target.id === 'furniture-layer') {
+                    setActiveItem(null);
+                }
+            });
+        }
+
+        // Control Toolbar Fixed Top-Center Display
+        function updateFloatingToolbar() {
+            const toolbar = document.getElementById('floating-toolbar');
+            if(!activeItemId) {
+                toolbar.classList.add('hidden');
+                return;
+            }
+
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+            if(!item) {
+                toolbar.classList.add('hidden');
+                return;
+            }
+
+            // Always display fixed at the top center of the room canvas
+            toolbar.classList.remove('hidden');
+        }
+
+        function rotateActiveItem(deg) {
+            if(!activeItemId) return;
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+            if(item) {
+                item.rotation = (item.rotation + deg) % 360;
+                renderRoomItems();
+                saveHistory();
+            }
+        }
+
+        function scaleActiveItem(factor) {
+            if(!activeItemId) return;
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+            if(item) {
+                item.scale = Math.max(0.4, Math.min(2.5, item.scale * factor));
+                renderRoomItems();
+                saveHistory();
+            }
+        }
+
+        function changeLayer(dir) {
+            if(!activeItemId) return;
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+            if(item) {
+                if(dir === 'up') item.zIndex += 1;
+                else if(dir === 'down') item.zIndex = Math.max(1, item.zIndex - 1);
+                renderRoomItems();
+                saveHistory();
+            }
+        }
+
+        function duplicateActiveItem() {
+            if(!activeItemId) return;
+            const item = placedItems.find(i => i.instanceId === activeItemId);
+            if(item) {
+                const dup = {
+                    ...item,
+                    instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                    x: item.x + 20,
+                    y: item.y + 20,
+                    zIndex: placedItems.length + 1
+                };
+                placedItems.push(dup);
+                renderRoomItems();
+                setActiveItem(dup.instanceId);
+                saveHistory();
+                showToast('Furnitur diduplikasi');
+            }
+        }
+
+        function deleteActiveItem() {
+            if(!activeItemId) return;
+            placedItems = placedItems.filter(i => i.instanceId !== activeItemId);
+            setActiveItem(null);
+            renderRoomItems();
+            saveHistory();
+            showToast('Furnitur dihapus');
+        }
+
+        function clearRoom() {
+            if(placedItems.length === 0) return;
+            placedItems = [];
+            setActiveItem(null);
+            renderRoomItems();
+            saveHistory();
+            showToast('Ruangan dibersihkan');
+        }
+
+        // Save & Load Drafts via LocalStorage (Client-Side Persistence)
+        function saveToLocalStorage() {
+            const data = {
+                preset: activeRoomPreset,
+                wallColor: document.getElementById('wall-color-picker').value,
+                items: placedItems
+            };
+            localStorage.setItem('studio_interior_draft', JSON.stringify(data));
+            showToast('Draf disimpan di penyimpanan browser!');
+        }
+
+        function loadFromLocalStorage(silent = false) {
+            const raw = localStorage.getItem('studio_interior_draft');
+            if(raw) {
+                try {
+                    const data = JSON.parse(raw);
+                    activeRoomPreset = data.preset || 'living';
+                    document.getElementById('room-preset-select').value = activeRoomPreset;
+                    setupRoomPreset(activeRoomPreset);
+                    
+                    if(data.wallColor) {
+                        document.getElementById('wall-color-picker').value = data.wallColor;
+                        changeWallColor(data.wallColor);
+                    }
+                    
+                    placedItems = data.items || [];
+                    renderRoomItems();
+                    if(!silent) showToast('Draf desain berhasil dimuat');
+                } catch(e) {
+                    console.error("Failed loading local draft", e);
+                }
+            }
+        }
+
+        // Share Modal & JSON Code Export/Import
+        function openShareModal() {
+            setActiveItem(null);
+            const exportData = {
+                version: "1.0",
+                preset: activeRoomPreset,
+                wallColor: document.getElementById('wall-color-picker').value,
+                items: placedItems
+            };
+            document.getElementById('share-json-code').value = JSON.stringify(exportData, null, 2);
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.add('hidden');
+        }
+
+        function copyShareCode() {
+            const textarea = document.getElementById('share-json-code');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('Kode desain berhasil disalin!');
+        }
+
+        function importShareCode() {
+            const raw = document.getElementById('share-json-code').value;
+            try {
+                const parsed = JSON.parse(raw);
+                if(parsed && parsed.items) {
+                    placedItems = parsed.items;
+                    if(parsed.preset) {
+                        activeRoomPreset = parsed.preset;
+                        document.getElementById('room-preset-select').value = activeRoomPreset;
+                        setupRoomPreset(activeRoomPreset);
+                    }
+                    if(parsed.wallColor) {
+                        document.getElementById('wall-color-picker').value = parsed.wallColor;
+                        changeWallColor(parsed.wallColor);
+                    }
+                    renderRoomItems();
+                    saveHistory();
+                    closeShareModal();
+                    showToast('Kode desain berhasil diimpor!');
+                } else {
+                    alert('Format kode desain JSON tidak valid!');
+                }
+            } catch(e) {
+                alert('Gagal mengimpor. Pastikan kode JSON valid!');
+            }
+        }
+
+        // History Management
+        function saveHistory() {
+            historyStack = historyStack.slice(0, historyStep + 1);
+            historyStack.push(JSON.stringify(placedItems));
+            historyStep = historyStack.length - 1;
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if(historyStep > 0) {
+                historyStep--;
+                placedItems = JSON.parse(historyStack[historyStep]);
+                setActiveItem(null);
+                renderRoomItems();
+                updateUndoRedoButtons();
+                showToast('Langkah diurungkan');
+            }
+        }
+
+        function redo() {
+            if(historyStep < historyStack.length - 1) {
+                historyStep++;
+                placedItems = JSON.parse(historyStack[historyStep]);
+                setActiveItem(null);
+                renderRoomItems();
+                updateUndoRedoButtons();
+                showToast('Langkah diulangi');
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('btn-undo').disabled = (historyStep <= 0);
+            document.getElementById('btn-redo').disabled = (historyStep >= historyStack.length - 1);
+        }
+
+        // Preview & Image Export Engine with Watermark
+        function togglePreviewMode() {
+            const overlay = document.getElementById('preview-overlay');
+            const container = document.getElementById('preview-container');
+            
+            if(overlay.classList.contains('hidden')) {
+                setActiveItem(null);
+                const roomCanvas = document.getElementById('room-canvas');
+                const clone = roomCanvas.cloneNode(true);
+                
+                const cloneToolbar = clone.querySelector('#floating-toolbar');
+                if(cloneToolbar) cloneToolbar.remove();
+
+                container.innerHTML = '';
+                container.appendChild(clone);
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function exportDesignImage() {
+            setActiveItem(null);
+            showToast('Menyiapkan gambar PNG HD...');
+
+            const roomCanvas = document.getElementById('room-canvas');
+            const width = roomCanvas.clientWidth;
+            const height = roomCanvas.clientHeight;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width * 2;
+            canvas.height = height * 2;
+            const ctx = canvas.getContext('2d');
+            ctx.scale(2, 2);
+
+            // Wall & Floor Backgrounds
+            const wallColor = getComputedStyle(document.getElementById('room-wall')).backgroundColor;
+            ctx.fillStyle = wallColor;
+            ctx.fillRect(0, 0, width, height * 0.68);
+
+            ctx.fillStyle = '#78350f';
+            ctx.fillRect(0, height * 0.68, width, height * 0.32);
+
+            const drawWatermark = () => {
+                ctx.save();
+                ctx.font = 'bold 28px "Dancing Script", cursive, sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'bottom';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 4;
+                ctx.fillText('by Sasa', width - 20, height - 15);
+                ctx.restore();
+            };
+
+            let loadedCount = 0;
+            const sortedItems = [...placedItems].sort((a,b) => a.zIndex - b.zIndex);
+
+            if(sortedItems.length === 0) {
+                drawWatermark();
+                downloadCanvas(canvas);
+                return;
+            }
+
+            sortedItems.forEach(item => {
+                const img = new Image();
+                const svgBlob = new Blob([item.svg], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+
+                img.onload = function() {
+                    ctx.save();
+                    const cx = item.x + (item.width * item.scale) / 2;
+                    const cy = item.y + (item.height * item.scale) / 2;
+                    
+                    ctx.translate(cx, cy);
+                    ctx.rotate((item.rotation * Math.PI) / 180);
+                    ctx.drawImage(img, -(item.width * item.scale)/2, -(item.height * item.scale)/2, item.width * item.scale, item.height * item.scale);
+                    ctx.restore();
+
+                    URL.revokeObjectURL(url);
+                    loadedCount++;
+
+                    if(loadedCount === sortedItems.length) {
+                        drawWatermark();
+                        downloadCanvas(canvas);
+                    }
+                };
+                img.src = url;
+            });
+        }
+
+        function downloadCanvas(canvas) {
+            const link = document.createElement('a');
+            link.download = `Desain_Interior_by_Sasa_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showToast('Gambar desain disimpan!');
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
