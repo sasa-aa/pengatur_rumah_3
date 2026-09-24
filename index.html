@@ -21,7 +21,7 @@
             font-family: 'Dancing Script', cursive;
         }
 
-        /* Prevent unwanted touch scrolling during drag on mobile devices */
+        /* Prevent touch scrolling during drag on mobile devices */
         .touch-none {
             touch-action: none !important;
         }
@@ -44,11 +44,20 @@
 
         /* Active selection border styling */
         .furniture-active {
-            outline: 2.5px dashed #0d9488;
+            outline: 3px dashed #0d9488;
             outline-offset: 4px;
+            filter: drop-shadow(0 10px 15px rgba(13, 148, 136, 0.3));
         }
 
-        /* Pattern wallpapers for wall customizer */
+        /* Furniture Touch Target Expansion */
+        .furniture-item {
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            will-change: transform, left, top;
+        }
+
+        /* Wallpapers for wall customizer */
         .wallpaper-stripes {
             background-image: repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(255,255,255,0.15) 20px, rgba(255,255,255,0.15) 40px);
         }
@@ -62,7 +71,6 @@
             background-size: 20px 20px;
         }
 
-        /* Thumb-friendly target sizing for mobile devices */
         .btn-touch {
             min-width: 44px;
             min-height: 44px;
@@ -109,13 +117,12 @@
             
             <div class="h-6 w-[1px] bg-slate-200 mx-0.5 sm:mx-1"></div>
 
-            <!-- Draft & Share Options -->
-            <button onclick="saveToLocalStorage()" title="Simpan Draf di Browser HP/PC" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+            <button onclick="saveToLocalStorage()" title="Simpan Draf" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
                 <i class="fa-solid fa-floppy-disk text-teal-600"></i>
                 <span class="hidden md:inline">Simpan Draf</span>
             </button>
 
-            <button onclick="openShareModal()" title="Bagikan / Ekspor Kode JSON Desain" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+            <button onclick="openShareModal()" title="Bagikan Kode" class="btn-touch px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
                 <i class="fa-solid fa-share-nodes text-indigo-600"></i>
                 <span class="hidden md:inline">Berbagi Kode</span>
             </button>
@@ -141,15 +148,15 @@
     <!-- Main Workspace Container -->
     <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- Left Sidebar: Furniture Catalog (Katalog di Sebelah Kiri) -->
+        <!-- Left Sidebar: Furniture Catalog -->
         <aside id="sidebar-catalog" class="w-80 md:w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 shadow-lg md:shadow-none transition-all duration-300 absolute md:relative inset-y-0 left-0 -translate-x-full md:translate-x-0">
             <!-- Sidebar Header & Search -->
-            <div class="p-4 border-b border-slate-100 bg-slate-50/50 space-y-3">
+            <div class="p-3 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-2">
                 <div class="flex items-center justify-between">
-                    <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-shapes text-teal-600"></i> Katalog Furnitur
-                    </h2>
-                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 btn-touch">
+                    <span class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-packing text-teal-600"></i> Katalog Furnitur
+                    </span>
+                    <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 p-1">
                         <i class="fa-solid fa-xmark text-lg"></i>
                     </button>
                 </div>
@@ -223,7 +230,7 @@
                     <div id="room-wall" class="absolute top-0 left-0 right-0 h-[68%] transition-colors duration-300">
                         <div id="wallpaper-overlay" class="absolute inset-0 opacity-40"></div>
                         <!-- Window Decor -->
-                        <div class="absolute top-10 right-12 w-32 h-44 bg-sky-200/50 border-4 border-white/80 rounded-t-full shadow-inner overflow-hidden flex flex-col justify-between p-1">
+                        <div class="absolute top-8 right-12 w-32 h-44 bg-sky-200/50 border-4 border-white/80 rounded-t-full shadow-inner overflow-hidden flex flex-col justify-between p-1">
                             <div class="w-full h-full border border-white/60 rounded-t-full relative">
                                 <div class="absolute inset-x-0 top-1/2 h-1 bg-white/60"></div>
                                 <div class="absolute inset-y-0 left-1/2 w-1 bg-white/60"></div>
@@ -237,10 +244,10 @@
                     </div>
 
                     <!-- Room Items Layer -->
-                    <div id="furniture-layer" class="absolute inset-0"></div>
+                    <div id="furniture-layer" class="absolute inset-0 touch-none"></div>
 
-                    <!-- Fixed Top-Center Control Toolbar (Always stays at top center of canvas when an item is selected) -->
-                    <div id="floating-toolbar" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white backdrop-blur-md rounded-2xl px-3 py-2 shadow-2xl flex items-center gap-1.5 border border-slate-700/80 transition-all duration-200">
+                    <!-- Floating Control Toolbar Fixed at Top-Center -->
+                    <div id="floating-toolbar" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white backdrop-blur-md rounded-2xl px-3 py-1.5 shadow-2xl flex items-center gap-1 border border-slate-700/80 transition-all duration-200">
                         <button onclick="rotateActiveItem(-15)" title="Putar Kiri" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-rotate-left text-teal-400"></i></button>
                         <button onclick="rotateActiveItem(15)" title="Putar Kanan" class="btn-touch p-2 hover:bg-slate-700/80 rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-rotate-right text-teal-400"></i></button>
                         <div class="w-[1px] h-5 bg-slate-700"></div>
@@ -254,9 +261,9 @@
                         <button onclick="deleteActiveItem()" title="Hapus" class="btn-touch p-2 hover:bg-rose-600/80 text-rose-400 hover:text-white rounded-xl text-xs sm:text-sm"><i class="fa-solid fa-trash"></i></button>
                     </div>
 
-                    <!-- Watermark Hak Cipta di Pojok Kanan Bawah Canvas -->
+                    <!-- Watermark Hak Cipta "by Sasa" di Pojok Kanan Bawah Canvas -->
                     <div class="absolute bottom-3 right-4 z-20 pointer-events-none select-none text-right">
-                        <p class="font-watermark text-xl sm:text-2xl font-bold text-white/70 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">by Sasa</p>
+                        <p class="font-watermark text-2xl sm:text-3xl font-bold text-white/80 drop-shadow-[0_2px_5px_rgba(0,0,0,0.6)]">by Sasa</p>
                     </div>
 
                 </div>
@@ -264,394 +271,268 @@
         </main>
     </div>
 
-    <!-- Share & Code Export/Import Modal -->
+    <!-- Share/Export JSON Modal -->
     <div id="share-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl p-5 shadow-2xl border border-slate-100 flex flex-col gap-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-share-nodes text-teal-600"></i> Bagikan / Ekspor Kode Desain
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-indigo-600"></i> Berbagi Kode Desain
                 </h3>
-                <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600 btn-touch">
+                <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-600 p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
-            <p class="text-xs text-slate-500 leading-relaxed">
-                Salin kode desain JSON di bawah untuk dibagikan ke pengguna lain, atau tempelkan kode desain dari teman untuk mengimpor karyanya.
-            </p>
+            <p class="text-xs text-slate-500">Salin kode di bawah untuk membagikan tata letak ruangan Anda ke teman, atau tempel kode dari teman untuk memuat desain mereka.</p>
 
             <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">Kode JSON Desain Anda:</label>
-                <textarea id="share-json-code" rows="5" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-teal-500 select-all"></textarea>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Kode JSON Desain:</label>
+                <textarea id="share-json-input" class="w-full h-28 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 select-all"></textarea>
             </div>
 
-            <div class="flex items-center gap-2 pt-2">
-                <button onclick="copyShareCode()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-teal-600/20">
-                    <i class="fa-solid fa-copy"></i> Salin Kode
+            <div class="flex items-center justify-end gap-2">
+                <button onclick="copyShareCode()" class="btn-touch px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-copy mr-1"></i> Salin Kode
                 </button>
-                <button onclick="importShareCode()" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20">
-                    <i class="fa-solid fa-file-import"></i> Impor Kode Desain
+                <button onclick="importShareCode()" class="btn-touch px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-import mr-1"></i> Impor Desain
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Fullscreen Preview Overlay -->
-    <div id="preview-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4">
-        <div class="absolute top-4 right-4 flex items-center gap-3">
-            <button onclick="exportDesignImage()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-sm shadow-lg flex items-center gap-2">
-                <i class="fa-solid fa-download"></i> Unduh Hasil Desain
-            </button>
-            <button onclick="togglePreviewMode()" class="w-10 h-10 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-        <div id="preview-container" class="w-full h-full max-w-5xl max-h-[85vh] flex items-center justify-center">
-            <!-- Cloned canvas view rendered here -->
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 opacity-0 translate-y-4 pointer-events-none flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-teal-400" id="toast-icon"></i>
-        <span id="toast-message">Pesan notifikasi</span>
+    <!-- Toast Notifications -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-teal-400"></i>
+        <span id="toast-msg">Pesan...</span>
     </div>
 
     <script>
-        // Catalog Database (20+ Items Vector SVG)
-        const furnitureCatalog = [
-            // RUANG TAMU
-            {
-                id: 'sofa-minimalist',
-                name: 'Sofa Minimalis Modern',
-                category: 'living',
-                width: 180,
-                height: 90,
-                svg: `<svg viewBox="0 0 180 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="10" y="20" width="160" height="50" rx="12" fill="#0f766e"/>
-                    <rect x="20" y="10" width="140" height="25" rx="8" fill="#115e59"/>
-                    <rect x="5" y="35" width="20" height="40" rx="6" fill="#134e4a"/>
-                    <rect x="155" y="35" width="20" height="40" rx="6" fill="#134e4a"/>
-                    <rect x="25" y="30" width="62" height="35" rx="6" fill="#14b8a6"/>
-                    <rect x="93" y="30" width="62" height="35" rx="6" fill="#14b8a6"/>
-                    <rect x="20" y="70" width="8" height="15" rx="2" fill="#475569"/>
-                    <rect x="152" y="70" width="8" height="15" rx="2" fill="#475569"/>
-                </svg>`
-            },
-            {
-                id: 'coffee-table',
-                name: 'Meja Kopi Modern',
-                category: 'living',
-                width: 110,
-                height: 55,
-                svg: `<svg viewBox="0 0 110 55" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="55" cy="20" rx="50" ry="15" fill="#d97706"/>
-                    <ellipse cx="55" cy="18" rx="48" ry="13" fill="#f59e0b"/>
-                    <rect x="25" y="20" width="6" height="30" fill="#78350f" transform="rotate(-10 25 20)"/>
-                    <rect x="80" y="20" width="6" height="30" fill="#78350f" transform="rotate(10 80 20)"/>
-                    <circle cx="45" cy="18" r="4" fill="#334155"/>
-                    <rect x="55" y="15" width="12" height="6" rx="1" fill="#e2e8f0"/>
-                </svg>`
-            },
-            {
-                id: 'tv-unit',
-                name: 'Rak & TV LED 55"',
-                category: 'living',
-                width: 160,
-                height: 120,
-                svg: `<svg viewBox="0 0 160 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="15" y="10" width="130" height="75" rx="4" fill="#0f172a"/>
-                    <rect x="20" y="15" width="120" height="65" rx="2" fill="#1e293b"/>
-                    <rect x="72" y="85" width="16" height="15" fill="#475569"/>
-                    <rect x="55" y="100" width="50" height="5" rx="2" fill="#334155"/>
-                    <rect x="0" y="102" width="160" height="18" rx="3" fill="#b45309"/>
-                    <rect x="10" y="106" width="40" height="10" rx="2" fill="#d97706"/>
-                    <rect x="110" y="106" width="40" height="10" rx="2" fill="#d97706"/>
-                </svg>`
-            },
-            {
-                id: 'accent-chair',
-                name: 'Kursi Aksen Nordic',
-                category: 'living',
-                width: 80,
-                height: 85,
-                svg: `<svg viewBox="0 0 80 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="15" y="10" width="50" height="45" rx="10" fill="#f43f5e"/>
-                    <rect x="10" y="45" width="60" height="25" rx="8" fill="#e11d48"/>
-                    <rect x="18" y="68" width="6" height="16" fill="#78350f" transform="rotate(-8 18 68)"/>
-                    <rect x="56" y="68" width="6" height="16" fill="#78350f" transform="rotate(8 56 68)"/>
-                </svg>`
-            },
-            {
-                id: 'carpet-round',
-                name: 'Karpet Motif Geometry',
-                category: 'living',
-                width: 200,
-                height: 100,
-                svg: `<svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="100" cy="50" rx="95" ry="45" fill="#e2e8f0"/>
-                    <ellipse cx="100" cy="50" rx="80" ry="36" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8 6"/>
-                    <ellipse cx="100" cy="50" rx="55" ry="24" fill="#cbd5e1"/>
-                </svg>`
-            },
-
-            // RUANG KELUARGA
-            {
-                id: 'sofa-sectional-l',
-                name: 'Sofa L Sectional',
-                category: 'family',
-                width: 220,
-                height: 130,
-                svg: `<svg viewBox="0 0 220 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 20 H210 V110 H140 V70 H10 Z" fill="#334155" rx="10"/>
-                    <rect x="20" y="28" width="180" height="35" rx="6" fill="#475569"/>
-                    <rect x="148" y="65" width="52" height="40" rx="6" fill="#475569"/>
-                    <circle cx="50" cy="45" r="10" fill="#f59e0b"/>
-                    <circle cx="90" cy="45" r="10" fill="#10b981"/>
-                </svg>`
-            },
-            {
-                id: 'credenza-wood',
-                name: 'Buffet Konsol Kayu',
-                category: 'family',
-                width: 140,
-                height: 70,
-                svg: `<svg viewBox="0 0 140 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="10" width="130" height="50" rx="4" fill="#b45309"/>
-                    <rect x="12" y="16" width="36" height="38" rx="2" fill="#d97706"/>
-                    <rect x="52" y="16" width="36" height="38" rx="2" fill="#d97706"/>
-                    <rect x="92" y="16" width="36" height="38" rx="2" fill="#d97706"/>
-                    <rect x="20" y="60" width="8" height="10" fill="#78350f"/>
-                    <rect x="112" y="60" width="8" height="10" fill="#78350f"/>
-                </svg>`
-            },
-            {
-                id: 'floor-lamp',
-                name: 'Lampu Lantai Sudut',
-                category: 'family',
-                width: 50,
-                height: 130,
-                svg: `<svg viewBox="0 0 50 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 35 L25 10 L40 35 Z" fill="#fef08a" opacity="0.8"/>
-                    <path d="M15 35 L25 15 L35 35 Z" fill="#fde047"/>
-                    <line x1="25" y1="35" x2="25" y2="120" stroke="#334155" stroke-width="4"/>
-                    <ellipse cx="25" cy="122" rx="15" ry="5" fill="#1e293b"/>
-                </svg>`
-            },
-            {
-                id: 'beanbag',
-                name: 'Beanbag Kursi Santai',
-                category: 'family',
-                width: 75,
-                height: 70,
-                svg: `<svg viewBox="0 0 75 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 60 C5 30 20 10 37 10 C55 10 70 30 60 60 C50 70 25 70 15 60 Z" fill="#8b5cf6"/>
-                    <path d="M22 55 C15 35 25 20 37 20 C50 20 58 35 52 55 Z" fill="#a855f7"/>
-                </svg>`
-            },
-
-            // KAMAR TIDUR
-            {
-                id: 'bed-king',
-                name: 'Tempat Tidur King Size',
-                category: 'bedroom',
-                width: 170,
-                height: 180,
-                svg: `<svg viewBox="0 0 170 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="10" y="5" width="150" height="25" rx="4" fill="#475569"/>
-                    <rect x="15" y="25" width="140" height="145" rx="8" fill="#e2e8f0"/>
-                    <rect x="25" y="35" width="55" height="35" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-                    <rect x="90" y="35" width="55" height="35" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
-                    <path d="M 15 80 Q 85 90 155 80 L 155 168 A 6 6 0 0 1 149 174 L 21 174 A 6 6 0 0 1 15 168 Z" fill="#6366f1"/>
-                </svg>`
-            },
-            {
-                id: 'wardrobe',
-                name: 'Lemari Pakaian Minimalis',
-                category: 'bedroom',
-                width: 120,
-                height: 160,
-                svg: `<svg viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="5" width="110" height="150" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
-                    <line x1="60" y1="5" x2="60" y2="155" stroke="#cbd5e1" stroke-width="2"/>
-                    <rect x="50" y="70" width="4" height="20" rx="2" fill="#64748b"/>
-                    <rect x="66" y="70" width="4" height="20" rx="2" fill="#64748b"/>
-                </svg>`
-            },
-            {
-                id: 'nightstand',
-                name: 'Nakas / Meja Samping',
-                category: 'bedroom',
-                width: 55,
-                height: 55,
-                svg: `<svg viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="5" width="45" height="45" rx="6" fill="#d97706"/>
-                    <rect x="9" y="10" width="37" height="16" rx="3" fill="#f59e0b"/>
-                    <rect x="9" y="30" width="37" height="16" rx="3" fill="#f59e0b"/>
-                    <circle cx="27.5" cy="18" r="2" fill="#78350f"/>
-                    <circle cx="27.5" cy="38" r="2" fill="#78350f"/>
-                </svg>`
-            },
-            {
-                id: 'dressing-table',
-                name: 'Meja Rias & Cermin',
-                category: 'bedroom',
-                width: 90,
-                height: 120,
-                svg: `<svg viewBox="0 0 90 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <ellipse cx="45" cy="35" rx="25" ry="30" fill="#e0f2fe" stroke="#38bdf8" stroke-width="3"/>
-                    <rect x="10" y="70" width="70" height="35" rx="4" fill="#b45309"/>
-                    <rect x="18" y="75" width="24" height="25" rx="2" fill="#d97706"/>
-                    <rect x="48" y="75" width="24" height="25" rx="2" fill="#d97706"/>
-                    <rect x="20" y="105" width="6" height="12" fill="#78350f"/>
-                    <rect x="64" y="105" width="6" height="12" fill="#78350f"/>
-                </svg>`
-            },
-
-            // AREA BELAJAR & DEKORASI
-            {
-                id: 'study-desk',
-                name: 'Meja Belajar Modern',
-                category: 'study',
-                width: 130,
-                height: 75,
-                svg: `<svg viewBox="0 0 130 75" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="10" width="120" height="15" rx="3" fill="#e2e8f0"/>
-                    <rect x="12" y="25" width="8" height="45" fill="#94a3b8"/>
-                    <rect x="110" y="25" width="8" height="45" fill="#94a3b8"/>
-                    <rect x="30" y="2" width="30" height="8" rx="2" fill="#1e293b"/>
-                    <rect x="70" y="5" width="15" height="5" rx="1" fill="#f43f5e"/>
-                </svg>`
-            },
-            {
-                id: 'office-chair',
-                name: 'Kursi Belajar Ergonomis',
-                category: 'study',
-                width: 65,
-                height: 80,
-                svg: `<svg viewBox="0 0 65 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="15" y="5" width="35" height="40" rx="6" fill="#0284c7"/>
-                    <rect x="10" y="42" width="45" height="12" rx="4" fill="#0369a1"/>
-                    <line x1="32.5" y1="54" x2="32.5" y2="68" stroke="#334155" stroke-width="5"/>
-                    <ellipse cx="32.5" cy="72" rx="20" ry="5" fill="#1e293b"/>
-                </svg>`
-            },
-            {
-                id: 'plant-monstera',
-                name: 'Tanaman Hias Pot',
-                category: 'study',
-                width: 60,
-                height: 90,
-                svg: `<svg viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="20" cy="30" r="16" fill="#15803d"/>
-                    <circle cx="40" cy="25" r="18" fill="#16a34a"/>
-                    <circle cx="30" cy="42" r="15" fill="#22c55e"/>
-                    <path d="M20 60 L40 60 L36 85 L24 85 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
-                </svg>`
-            },
-            {
-                id: 'wall-art',
-                name: 'Lukisan Dinding Minimalis',
-                category: 'study',
-                width: 70,
-                height: 90,
-                svg: `<svg viewBox="0 0 70 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="5" width="60" height="80" fill="#ffffff" stroke="#1e293b" stroke-width="4"/>
-                    <circle cx="35" cy="40" r="18" fill="#f59e0b"/>
-                    <path d="M 15 65 Q 35 45 55 65 Z" fill="#0f766e"/>
-                </svg>`
-            },
-            {
-                id: 'bookshelf',
-                name: 'Rak Buku Tingkat',
-                category: 'study',
-                width: 85,
-                height: 140,
-                svg: `<svg viewBox="0 0 85 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="5" width="75" height="130" rx="4" fill="#b45309"/>
-                    <rect x="10" y="10" width="65" height="35" fill="#d97706"/>
-                    <rect x="10" y="50" width="65" height="35" fill="#d97706"/>
-                    <rect x="10" y="90" width="65" height="40" fill="#d97706"/>
-                    <rect x="15" y="20" width="8" height="20" fill="#ef4444"/>
-                    <rect x="25" y="18" width="10" height="22" fill="#3b82f6"/>
-                    <rect x="37" y="22" width="6" height="18" fill="#10b981"/>
-                    <rect x="15" y="60" width="12" height="20" fill="#8b5cf6"/>
-                </svg>`
-            }
-        ];
-
-        // Global State Variables
-        let activeRoomPreset = 'living';
+        // Global Game State
         let placedItems = [];
         let activeItemId = null;
-        let activeCategory = 'all';
-        let historyStack = [];
-        let historyStep = -1;
-
-        // Drag State Variables
         let isDragging = false;
         let dragOffsetX = 0;
         let dragOffsetY = 0;
+        let zCounter = 10;
+        let currentCategory = 'all';
+
+        let historyStack = [];
+        let redoStack = [];
+
+        // Furniture Catalog Data with detailed SVGs
+        const FURNITURE_CATALOG = [
+            {
+                id: 'sofa-minimalis',
+                name: 'Sofa Minimalis Modern',
+                category: 'living',
+                width: 140,
+                height: 70,
+                svg: `<svg viewBox="0 0 140 70" class="w-full h-full drop-shadow-md"><rect x="5" y="10" width="130" height="50" rx="12" fill="#0d9488"/><rect x="15" y="15" width="110" height="30" rx="8" fill="#14b8a6"/><rect x="5" y="10" width="20" height="50" rx="6" fill="#0f766e"/><rect x="115" y="10" width="20" height="50" rx="6" fill="#0f766e"/><rect x="20" y="55" width="10" height="10" fill="#334155"/><rect x="110" y="55" width="10" height="10" fill="#334155"/></svg>`
+            },
+            {
+                id: 'sofa-l-sectional',
+                name: 'Sofa L / Sectional',
+                category: 'family',
+                width: 160,
+                height: 100,
+                svg: `<svg viewBox="0 0 160 100" class="w-full h-full drop-shadow-md"><path d="M10,10 L150,10 A10,10 0 0,1 160,20 L160,85 A10,10 0 0,1 150,95 L100,95 L100,60 L10,60 A10,10 0 0,1 0,50 L0,20 A10,10 0 0,1 10,10 Z" fill="#3b82f6"/><path d="M15,18 L145,18 A5,5 0 0,1 150,23 L150,80 A5,5 0 0,1 145,85 L105,85 L105,50 L15,50 A5,5 0 0,1 10,45 L10,23 A5,5 0 0,1 15,18 Z" fill="#60a5fa"/></svg>`
+            },
+            {
+                id: 'meja-kopi',
+                name: 'Meja Kopi (Coffee Table)',
+                category: 'living',
+                width: 90,
+                height: 45,
+                svg: `<svg viewBox="0 0 90 45" class="w-full h-full drop-shadow-md"><rect x="5" y="5" width="80" height="35" rx="10" fill="#d97706"/><rect x="10" y="8" width="70" height="29" rx="6" fill="#b45309"/><rect x="12" y="38" width="6" height="6" fill="#451a03"/><rect x="72" y="38" width="6" height="6" fill="#451a03"/></svg>`
+            },
+            {
+                id: 'rak-tv-credenza',
+                name: 'Rak TV & Media',
+                category: 'living',
+                width: 150,
+                height: 60,
+                svg: `<svg viewBox="0 0 150 60" class="w-full h-full drop-shadow-lg"><rect x="5" y="30" width="140" height="25" rx="4" fill="#78350f"/><rect x="30" y="5" width="90" height="25" rx="4" fill="#0f172a"/><rect x="35" y="8" width="80" height="19" fill="#38bdf8" opacity="0.8"/><rect x="15" y="35" width="35" height="15" fill="#451a03"/><rect x="100" y="35" width="35" height="15" fill="#451a03"/></svg>`
+            },
+            {
+                id: 'kursi-aksen',
+                name: 'Kursi Aksen Modern',
+                category: 'living',
+                width: 65,
+                height: 65,
+                svg: `<svg viewBox="0 0 65 65" class="w-full h-full drop-shadow-md"><circle cx="32.5" cy="32.5" r="28" fill="#f59e0b"/><circle cx="32.5" cy="32.5" r="21" fill="#fbbf24"/><rect x="5" y="22" width="10" height="20" rx="4" fill="#d97706"/><rect x="50" y="22" width="10" height="20" rx="4" fill="#d97706"/></svg>`
+            },
+            {
+                id: 'tempat-tidur-king',
+                name: 'Tempat Tidur King Bed',
+                category: 'bedroom',
+                width: 130,
+                height: 140,
+                svg: `<svg viewBox="0 0 130 140" class="w-full h-full drop-shadow-xl"><rect x="5" y="5" width="120" height="20" rx="4" fill="#475569"/><rect x="10" y="20" width="110" height="115" rx="8" fill="#e2e8f0"/><rect x="15" y="30" width="45" height="25" rx="4" fill="#ffffff"/><rect x="70" y="30" width="45" height="25" rx="4" fill="#ffffff"/><rect x="10" y="65" width="110" height="65" rx="6" fill="#818cf8"/></svg>`
+            },
+            {
+                id: 'lemari-pakaian',
+                name: 'Lemari Pakaian Minimalis',
+                category: 'bedroom',
+                width: 100,
+                height: 120,
+                svg: `<svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-lg"><rect x="5" y="5" width="90" height="110" rx="6" fill="#334155"/><line x1="50" y1="5" x2="50" y2="115" stroke="#1e293b" stroke-width="3"/><circle cx="42" cy="60" r="3" fill="#cbd5e1"/><circle cx="58" cy="60" r="3" fill="#cbd5e1"/></svg>`
+            },
+            {
+                id: 'nakas-bed',
+                name: 'Nakas Tempat Tidur',
+                category: 'bedroom',
+                width: 45,
+                height: 45,
+                svg: `<svg viewBox="0 0 45 45" class="w-full h-full drop-shadow-md"><rect x="3" y="3" width="39" height="39" rx="6" fill="#a16207"/><rect x="7" y="8" width="31" height="12" rx="2" fill="#ca8a04"/><rect x="7" y="24" width="31" height="12" rx="2" fill="#ca8a04"/><circle cx="22.5" cy="14" r="2" fill="#fef08a"/><circle cx="22.5" cy="30" r="2" fill="#fef08a"/></svg>`
+            },
+            {
+                id: 'meja-rias',
+                name: 'Meja Rias & Cermin',
+                category: 'bedroom',
+                width: 80,
+                height: 90,
+                svg: `<svg viewBox="0 0 80 90" class="w-full h-full drop-shadow-md"><rect x="5" y="45" width="70" height="40" rx="6" fill="#ec4899"/><ellipse cx="40" cy="25" rx="22" ry="20" fill="#cbd5e1" stroke="#be185d" stroke-width="4"/><ellipse cx="40" cy="25" rx="18" ry="16" fill="#e0f2fe"/><rect x="12" y="52" width="24" height="28" rx="3" fill="#be185d"/><rect x="44" y="52" width="24" height="28" rx="3" fill="#be185d"/></svg>`
+            },
+            {
+                id: 'cermin-full-body',
+                name: 'Cermin Besar Full-Body',
+                category: 'bedroom',
+                width: 40,
+                height: 100,
+                svg: `<svg viewBox="0 0 40 100" class="w-full h-full drop-shadow-md"><rect x="5" y="5" width="30" height="90" rx="15" fill="#e2e8f0" stroke="#f59e0b" stroke-width="4"/><rect x="9" y="9" width="22" height="82" rx="11" fill="#bae6fd"/><path d="M12,25 L25,12" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`
+            },
+            {
+                id: 'meja-belajar',
+                name: 'Meja Belajar / Kerja',
+                category: 'study',
+                width: 100,
+                height: 55,
+                svg: `<svg viewBox="0 0 100 55" class="w-full h-full drop-shadow-md"><rect x="5" y="5" width="90" height="45" rx="6" fill="#0284c7"/><rect x="10" y="10" width="80" height="35" rx="4" fill="#38bdf8"/><rect x="70" y="12" width="18" height="31" fill="#0369a1"/></svg>`
+            },
+            {
+                id: 'kursi-belajar-ergonomis',
+                name: 'Kursi Belajar Ergonomis',
+                category: 'study',
+                width: 50,
+                height: 50,
+                svg: `<svg viewBox="0 0 50 50" class="w-full h-full drop-shadow-md"><circle cx="25" cy="25" r="20" fill="#0f172a"/><circle cx="25" cy="25" r="14" fill="#334155"/><rect x="21" y="3" width="8" height="10" rx="3" fill="#0284c7"/></svg>`
+            },
+            {
+                id: 'tanaman-hias',
+                name: 'Tanaman Hias Monstera',
+                category: 'living',
+                width: 50,
+                height: 50,
+                svg: `<svg viewBox="0 0 50 50" class="w-full h-full drop-shadow-md"><circle cx="25" cy="25" r="12" fill="#78350f"/><path d="M25,20 Q15,5 5,15 Q15,25 25,20 Z" fill="#16a34a"/><path d="M25,20 Q35,5 45,15 Q35,25 25,20 Z" fill="#22c55e"/><path d="M25,25 Q10,35 20,45 Q30,35 25,25 Z" fill="#15803d"/></svg>`
+            },
+            {
+                id: 'lampu-lantai',
+                name: 'Lampu Lantai Sudut',
+                category: 'family',
+                width: 40,
+                height: 40,
+                svg: `<svg viewBox="0 0 40 40" class="w-full h-full drop-shadow-md"><circle cx="20" cy="20" r="16" fill="#fef08a" opacity="0.6"/><circle cx="20" cy="20" r="10" fill="#facc15"/><circle cx="20" cy="20" r="4" fill="#ca8a04"/></svg>`
+            },
+            {
+                id: 'karpet-ruang-tamu',
+                name: 'Karpet Pattern Geometric',
+                category: 'living',
+                width: 150,
+                height: 100,
+                svg: `<svg viewBox="0 0 150 100" class="w-full h-full"><rect x="5" y="5" width="140" height="90" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="3" stroke-dasharray="6,6"/><rect x="25" y="20" width="100" height="60" rx="4" fill="#99f6e4" opacity="0.6"/></svg>`
+            },
+            {
+                id: 'lukisan-dinding',
+                name: 'Lukisan Canvas Art',
+                category: 'family',
+                width: 70,
+                height: 50,
+                svg: `<svg viewBox="0 0 70 50" class="w-full h-full drop-shadow-md"><rect x="3" y="3" width="64" height="44" rx="4" fill="#ffffff" stroke="#334155" stroke-width="3"/><path d="M10,35 C20,10 40,40 60,15" fill="none" stroke="#6366f1" stroke-width="4"/><circle cx="50" cy="15" r="6" fill="#f43f5e"/></svg>`
+            },
+            {
+                id: 'rak-buku-modern',
+                name: 'Rak Buku Modern',
+                category: 'study',
+                width: 90,
+                height: 40,
+                svg: `<svg viewBox="0 0 90 40" class="w-full h-full drop-shadow-md"><rect x="4" y="4" width="82" height="32" rx="4" fill="#854d0e"/><rect x="8" y="8" width="22" height="24" fill="#fef08a"/><rect x="34" y="8" width="22" height="24" fill="#bbf7d0"/><rect x="60" y="8" width="22" height="24" fill="#bfdbfe"/></svg>`
+            },
+            {
+                id: 'beanbag-santai',
+                name: 'Beanbag Kursi Santai',
+                category: 'family',
+                width: 60,
+                height: 60,
+                svg: `<svg viewBox="0 0 60 60" class="w-full h-full drop-shadow-md"><circle cx="30" cy="30" r="25" fill="#a855f7"/><circle cx="30" cy="27" r="18" fill="#c084fc"/></svg>`
+            },
+            {
+                id: 'storage-box',
+                name: 'Kotak Penyimpanan',
+                category: 'study',
+                width: 45,
+                height: 45,
+                svg: `<svg viewBox="0 0 45 45" class="w-full h-full drop-shadow-md"><rect x="4" y="4" width="37" height="37" rx="6" fill="#ea580c"/><rect x="8" y="8" width="29" height="29" rx="4" fill="#f97316"/><rect x="15" y="4" width="15" height="4" fill="#c2410c"/></svg>`
+            },
+            {
+                id: 'lampu-belajar',
+                name: 'Lampu Belajar Desk',
+                category: 'study',
+                width: 35,
+                height: 35,
+                svg: `<svg viewBox="0 0 35 35" class="w-full h-full drop-shadow-md"><circle cx="17.5" cy="17.5" r="14" fill="#38bdf8" opacity="0.4"/><circle cx="17.5" cy="17.5" r="8" fill="#0284c7"/><path d="M17.5,17.5 L28,28" stroke="#0369a1" stroke-width="3"/></svg>`
+            }
+        ];
 
         window.onload = function() {
             renderCatalog();
-            setupRoomPreset('living');
-            setupCanvasInteraction();
-            
-            // Check if user has saved draft in LocalStorage
-            loadFromLocalStorage(true);
-            
-            if(placedItems.length === 0) {
-                // Default room arrangement preset
-                addFurnitureToRoom('sofa-minimalist', 120, 220);
-                addFurnitureToRoom('coffee-table', 155, 300);
-                addFurnitureToRoom('plant-monstera', 340, 180);
-            }
-            
-            saveHistory(); // initial state
+            loadFromLocalStorage();
         };
 
-        // Render Catalog Grid Left Sidebar
+        // Render Catalog Grid Items
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
-            const searchVal = document.getElementById('search-input').value.toLowerCase();
             grid.innerHTML = '';
 
-            const filtered = furnitureCatalog.filter(item => {
-                const matchesCat = (activeCategory === 'all' || item.category === activeCategory);
-                const matchesSearch = item.name.toLowerCase().includes(searchVal);
+            const filtered = FURNITURE_CATALOG.filter(item => {
+                const matchesCat = (currentCategory === 'all' || item.category === currentCategory);
+                const query = document.getElementById('search-input').value.toLowerCase();
+                const matchesSearch = item.name.toLowerCase().includes(query);
                 return matchesCat && matchesSearch;
             });
 
-            if(filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-2 py-8 text-center text-slate-400 text-xs">Tidak ada furnitur ditemukan</div>`;
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-8 text-slate-400 text-xs">Tidak ada furnitur ditemukan</div>`;
                 return;
             }
 
             filtered.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-slate-50 hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-xl p-2.5 flex flex-col items-center cursor-pointer transition group relative";
+                card.className = "bg-slate-50 hover:bg-teal-50/50 border border-slate-200 hover:border-teal-400 rounded-xl p-2.5 flex flex-col items-center justify-between cursor-pointer transition shadow-sm group";
                 card.onclick = () => addFurnitureToRoom(item.id);
 
                 card.innerHTML = `
-                    <div class="w-full h-20 flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
+                    <div class="w-16 h-16 flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
                         ${item.svg}
                     </div>
-                    <span class="text-xs font-semibold text-slate-700 text-center mt-1 line-clamp-1">${item.name}</span>
-                    <span class="text-[10px] text-slate-400 mt-0.5"><i class="fa-solid fa-plus-circle text-teal-600"></i> Tambah</span>
+                    <p class="text-[11px] font-semibold text-slate-700 text-center mt-1.5 leading-snug line-clamp-2">${item.name}</p>
+                    <button class="mt-2 text-[10px] font-bold text-teal-700 bg-teal-100 hover:bg-teal-600 hover:text-white px-2 py-1 rounded-md w-full transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Tambah
+                    </button>
                 `;
                 grid.appendChild(card);
             });
         }
 
+        // Category Filter Tabs
         function selectCategory(cat) {
-            activeCategory = cat;
+            currentCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(btn => {
                 btn.classList.remove('border-teal-600', 'text-teal-600');
                 btn.classList.add('border-transparent', 'text-slate-500');
             });
+
             const activeBtn = document.getElementById(`cat-${cat}`);
-            if(activeBtn) {
+            if (activeBtn) {
                 activeBtn.classList.remove('border-transparent', 'text-slate-500');
                 activeBtn.classList.add('border-teal-600', 'text-teal-600');
             }
@@ -662,77 +543,31 @@
             renderCatalog();
         }
 
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar-catalog');
-            sidebar.classList.toggle('-translate-x-full');
-        }
+        // Add Furniture to Room Canvas
+        function addFurnitureToRoom(catalogId) {
+            const template = FURNITURE_CATALOG.find(i => i.id === catalogId);
+            if (!template) return;
 
-        // Room Customizations
-        function setupRoomPreset(preset) {
-            const wall = document.getElementById('room-wall');
-            const floor = document.getElementById('room-floor');
-
-            if(preset === 'living') {
-                wall.style.backgroundColor = '#e2e8f0';
-                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-800 to-amber-950 border-t-8 border-amber-900/30 shadow-inner";
-            } else if(preset === 'family') {
-                wall.style.backgroundColor = '#fef3c7';
-                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-700 to-amber-900 border-t-8 border-amber-800/30 shadow-inner";
-            } else if(preset === 'bedroom') {
-                wall.style.backgroundColor = '#e0e7ff';
-                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-slate-700 to-slate-900 border-t-8 border-slate-800/30 shadow-inner";
-            }
-        }
-
-        function changeRoomType(val) {
-            activeRoomPreset = val;
-            setupRoomPreset(val);
-            showToast(`Preset ruangan diubah`);
-        }
-
-        function changeWallColor(color) {
-            document.getElementById('room-wall').style.backgroundColor = color;
-        }
-
-        function changeWallpaper(style) {
-            const overlay = document.getElementById('wallpaper-overlay');
-            overlay.className = 'absolute inset-0 opacity-40 ';
-            if(style !== 'none') {
-                overlay.classList.add(`wallpaper-${style}`);
-            }
-        }
-
-        // Add Furniture to Canvas
-        function addFurnitureToRoom(templateId, customX = null, customY = null) {
-            const template = furnitureCatalog.find(f => f.id === templateId);
-            if(!template) return;
-
+            zCounter++;
             const newItem = {
-                instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random()*1000),
-                templateId: template.id,
-                x: customX !== null ? customX : (100 + (placedItems.length * 15) % 200),
-                y: customY !== null ? customY : (120 + (placedItems.length * 15) % 150),
+                instanceId: 'item-' + Date.now(),
+                catalogId: template.id,
+                name: template.name,
                 width: template.width,
                 height: template.height,
+                svg: template.svg,
+                x: 150 + (placedItems.length * 10) % 100,
+                y: 150 + (placedItems.length * 10) % 100,
                 rotation: 0,
                 scale: 1,
-                zIndex: placedItems.length + 1,
-                svg: template.svg
+                zIndex: zCounter
             };
 
             placedItems.push(newItem);
+            saveHistory();
             renderRoomItems();
             setActiveItem(newItem.instanceId);
-            saveHistory();
-
-            if(!customX) {
-                showToast(`${template.name} ditambahkan`);
-            }
-
-            // Close sidebar on mobile
-            if(window.innerWidth < 768) {
-                document.getElementById('sidebar-catalog').classList.add('-translate-x-full');
-            }
+            showToast(`${template.name} ditambahkan`);
         }
 
         function renderRoomItems() {
@@ -742,7 +577,7 @@
             placedItems.forEach(item => {
                 const el = document.createElement('div');
                 el.id = item.instanceId;
-                el.className = `absolute cursor-grab active:cursor-grabbing transition-shadow ${activeItemId === item.instanceId ? 'furniture-active' : ''}`;
+                el.className = `furniture-item absolute cursor-grab active:cursor-grabbing p-1 ${activeItemId === item.instanceId ? 'furniture-active z-40' : ''}`;
                 el.style.left = `${item.x}px`;
                 el.style.top = `${item.y}px`;
                 el.style.width = `${item.width * item.scale}px`;
@@ -752,7 +587,7 @@
 
                 el.innerHTML = item.svg;
 
-                // Event Listeners for Touch & Mouse Drag
+                // Event Listeners for Touch and Mouse Dragging
                 el.addEventListener('mousedown', (e) => startDrag(e, item.instanceId));
                 el.addEventListener('touchstart', (e) => startDrag(e, item.instanceId), {passive: false});
 
@@ -762,35 +597,32 @@
             updateFloatingToolbar();
         }
 
-        function setActiveItem(id) {
-            activeItemId = id;
-            renderRoomItems();
-        }
-
-        // Drag Handler
+        // Drag Event Handler
         function startDrag(e, id) {
             e.stopPropagation();
-            if(e.touches && e.touches.length > 1) return;
+            if (e.touches && e.touches.length > 1) return;
 
             setActiveItem(id);
             isDragging = true;
 
+            const canvasBounds = document.getElementById('room-canvas').getBoundingClientRect();
             const item = placedItems.find(i => i.instanceId === id);
+
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-            dragOffsetX = clientX - item.x;
-            dragOffsetY = clientY - item.y;
+            dragOffsetX = clientX - (canvasBounds.left + item.x);
+            dragOffsetY = clientY - (canvasBounds.top + item.y);
 
-            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mousemove', onDrag, {passive: false});
             document.addEventListener('touchmove', onDrag, {passive: false});
             document.addEventListener('mouseup', endDrag);
             document.addEventListener('touchend', endDrag);
         }
 
         function onDrag(e) {
-            if(!isDragging || !activeItemId) return;
-            e.preventDefault(); // Lock page scrolling while dragging item
+            if (!isDragging || !activeItemId) return;
+            if (e.cancelable) e.preventDefault();
 
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -798,12 +630,18 @@
             const canvasBounds = document.getElementById('room-canvas').getBoundingClientRect();
             const item = placedItems.find(i => i.instanceId === activeItemId);
 
-            if(item) {
-                item.x = clientX - canvasBounds.left - 40;
-                item.y = clientY - canvasBounds.top - 40;
+            if (item) {
+                let newX = clientX - canvasBounds.left - dragOffsetX;
+                let newY = clientY - canvasBounds.top - dragOffsetY;
+
+                const scaledW = item.width * item.scale;
+                const scaledH = item.height * item.scale;
+
+                item.x = Math.max(-scaledW / 2, Math.min(canvasBounds.width - scaledW / 2, newX));
+                item.y = Math.max(-scaledH / 2, Math.min(canvasBounds.height - scaledH / 2, newY));
 
                 const el = document.getElementById(item.instanceId);
-                if(el) {
+                if (el) {
                     el.style.left = `${item.x}px`;
                     el.style.top = `${item.y}px`;
                 }
@@ -811,7 +649,7 @@
         }
 
         function endDrag() {
-            if(isDragging) {
+            if (isDragging) {
                 isDragging = false;
                 saveHistory();
             }
@@ -821,37 +659,24 @@
             document.removeEventListener('touchend', endDrag);
         }
 
-        function setupCanvasInteraction() {
-            const canvas = document.getElementById('room-canvas');
-            canvas.addEventListener('click', (e) => {
-                if(e.target === canvas || e.target.id === 'room-wall' || e.target.id === 'room-floor' || e.target.id === 'furniture-layer') {
-                    setActiveItem(null);
-                }
-            });
+        function setActiveItem(id) {
+            activeItemId = id;
+            renderRoomItems();
         }
 
-        // Control Toolbar Fixed Top-Center Display
         function updateFloatingToolbar() {
             const toolbar = document.getElementById('floating-toolbar');
-            if(!activeItemId) {
+            if (!activeItemId) {
                 toolbar.classList.add('hidden');
                 return;
             }
-
-            const item = placedItems.find(i => i.instanceId === activeItemId);
-            if(!item) {
-                toolbar.classList.add('hidden');
-                return;
-            }
-
-            // Always display fixed at the top center of the room canvas
             toolbar.classList.remove('hidden');
         }
 
         function rotateActiveItem(deg) {
-            if(!activeItemId) return;
+            if (!activeItemId) return;
             const item = placedItems.find(i => i.instanceId === activeItemId);
-            if(item) {
+            if (item) {
                 item.rotation = (item.rotation + deg) % 360;
                 renderRoomItems();
                 saveHistory();
@@ -859,107 +684,146 @@
         }
 
         function scaleActiveItem(factor) {
-            if(!activeItemId) return;
+            if (!activeItemId) return;
             const item = placedItems.find(i => i.instanceId === activeItemId);
-            if(item) {
+            if (item) {
                 item.scale = Math.max(0.4, Math.min(2.5, item.scale * factor));
                 renderRoomItems();
                 saveHistory();
             }
         }
 
-        function changeLayer(dir) {
-            if(!activeItemId) return;
+        function changeLayer(direction) {
+            if (!activeItemId) return;
             const item = placedItems.find(i => i.instanceId === activeItemId);
-            if(item) {
-                if(dir === 'up') item.zIndex += 1;
-                else if(dir === 'down') item.zIndex = Math.max(1, item.zIndex - 1);
+            if (item) {
+                if (direction === 'up') item.zIndex += 1;
+                else item.zIndex = Math.max(1, item.zIndex - 1);
                 renderRoomItems();
                 saveHistory();
             }
         }
 
         function duplicateActiveItem() {
-            if(!activeItemId) return;
+            if (!activeItemId) return;
             const item = placedItems.find(i => i.instanceId === activeItemId);
-            if(item) {
+            if (item) {
+                zCounter++;
                 const dup = {
                     ...item,
-                    instanceId: 'item_' + Date.now() + '_' + Math.floor(Math.random()*1000),
+                    instanceId: 'item-' + Date.now(),
                     x: item.x + 20,
                     y: item.y + 20,
-                    zIndex: placedItems.length + 1
+                    zIndex: zCounter
                 };
                 placedItems.push(dup);
-                renderRoomItems();
-                setActiveItem(dup.instanceId);
                 saveHistory();
+                setActiveItem(dup.instanceId);
                 showToast('Furnitur diduplikasi');
             }
         }
 
         function deleteActiveItem() {
-            if(!activeItemId) return;
+            if (!activeItemId) return;
             placedItems = placedItems.filter(i => i.instanceId !== activeItemId);
-            setActiveItem(null);
+            activeItemId = null;
             renderRoomItems();
             saveHistory();
             showToast('Furnitur dihapus');
         }
 
-        function clearRoom() {
-            if(placedItems.length === 0) return;
-            placedItems = [];
-            setActiveItem(null);
-            renderRoomItems();
-            saveHistory();
-            showToast('Ruangan dibersihkan');
-        }
+        function changeRoomType(type) {
+            const wall = document.getElementById('room-wall');
+            const floor = document.getElementById('room-floor');
 
-        // Save & Load Drafts via LocalStorage (Client-Side Persistence)
-        function saveToLocalStorage() {
-            const data = {
-                preset: activeRoomPreset,
-                wallColor: document.getElementById('wall-color-picker').value,
-                items: placedItems
-            };
-            localStorage.setItem('studio_interior_draft', JSON.stringify(data));
-            showToast('Draf disimpan di penyimpanan browser!');
-        }
-
-        function loadFromLocalStorage(silent = false) {
-            const raw = localStorage.getItem('studio_interior_draft');
-            if(raw) {
-                try {
-                    const data = JSON.parse(raw);
-                    activeRoomPreset = data.preset || 'living';
-                    document.getElementById('room-preset-select').value = activeRoomPreset;
-                    setupRoomPreset(activeRoomPreset);
-                    
-                    if(data.wallColor) {
-                        document.getElementById('wall-color-picker').value = data.wallColor;
-                        changeWallColor(data.wallColor);
-                    }
-                    
-                    placedItems = data.items || [];
-                    renderRoomItems();
-                    if(!silent) showToast('Draf desain berhasil dimuat');
-                } catch(e) {
-                    console.error("Failed loading local draft", e);
-                }
+            if (type === 'living') {
+                wall.style.backgroundColor = '#f1f5f9';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-800 to-amber-950 border-t-8 border-amber-900/30 shadow-inner";
+            } else if (type === 'family') {
+                wall.style.backgroundColor = '#fef3c7';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-slate-700 to-slate-900 border-t-8 border-slate-800 shadow-inner";
+            } else if (type === 'bedroom') {
+                wall.style.backgroundColor = '#e0f2fe';
+                floor.className = "absolute bottom-0 left-0 right-0 h-[32%] bg-gradient-to-b from-amber-900 to-amber-950 border-t-8 border-amber-900/30 shadow-inner";
             }
         }
 
-        // Share Modal & JSON Code Export/Import
-        function openShareModal() {
+        function changeWallColor(color) {
+            document.getElementById('room-wall').style.backgroundColor = color;
+        }
+
+        function changeWallpaper(pattern) {
+            const overlay = document.getElementById('wallpaper-overlay');
+            overlay.className = 'absolute inset-0 opacity-40 ';
+            if (pattern !== 'none') {
+                overlay.classList.add(`wallpaper-${pattern}`);
+            }
+        }
+
+        function saveHistory() {
+            historyStack.push(JSON.stringify(placedItems));
+            redoStack = [];
+            updateUndoRedoButtons();
+        }
+
+        function undo() {
+            if (historyStack.length > 1) {
+                redoStack.push(historyStack.pop());
+                const prev = historyStack[historyStack.length - 1];
+                placedItems = JSON.parse(prev);
+                renderRoomItems();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const next = redoStack.pop();
+                historyStack.push(next);
+                placedItems = JSON.parse(next);
+                renderRoomItems();
+                updateUndoRedoButtons();
+            }
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('btn-undo').disabled = historyStack.length <= 1;
+            document.getElementById('btn-redo').disabled = redoStack.length === 0;
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sasa_interior_design', JSON.stringify(placedItems));
+            showToast('Draf disimpan di browser');
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('sasa_interior_design');
+            if (saved) {
+                placedItems = JSON.parse(saved);
+                saveHistory();
+                renderRoomItems();
+            } else {
+                saveHistory();
+            }
+        }
+
+        function clearRoom() {
+            if (placedItems.length === 0) return;
+            placedItems = [];
+            activeItemId = null;
+            saveHistory();
+            renderRoomItems();
+            showToast('Ruangan dibersihkan');
+        }
+
+        function togglePreviewMode() {
+            const sidebar = document.getElementById('sidebar-catalog');
+            sidebar.classList.toggle('hidden');
             setActiveItem(null);
-            const exportData = {
-                version: "1.0",
-                preset: activeRoomPreset,
-                wallColor: document.getElementById('wall-color-picker').value,
-                items: placedItems
-            };
-            document.getElementById('share-json-code').value = JSON.stringify(exportData, null, 2);
+        }
+
+        function openShareModal() {
+            document.getElementById('share-json-input').value = JSON.stringify(placedItems);
             document.getElementById('share-modal').classList.remove('hidden');
         }
 
@@ -968,92 +832,22 @@
         }
 
         function copyShareCode() {
-            const textarea = document.getElementById('share-json-code');
+            const textarea = document.getElementById('share-json-input');
             textarea.select();
             document.execCommand('copy');
-            showToast('Kode desain berhasil disalin!');
+            showToast('Kode berhasil disalin!');
         }
 
         function importShareCode() {
-            const raw = document.getElementById('share-json-code').value;
             try {
-                const parsed = JSON.parse(raw);
-                if(parsed && parsed.items) {
-                    placedItems = parsed.items;
-                    if(parsed.preset) {
-                        activeRoomPreset = parsed.preset;
-                        document.getElementById('room-preset-select').value = activeRoomPreset;
-                        setupRoomPreset(activeRoomPreset);
-                    }
-                    if(parsed.wallColor) {
-                        document.getElementById('wall-color-picker').value = parsed.wallColor;
-                        changeWallColor(parsed.wallColor);
-                    }
-                    renderRoomItems();
-                    saveHistory();
-                    closeShareModal();
-                    showToast('Kode desain berhasil diimpor!');
-                } else {
-                    alert('Format kode desain JSON tidak valid!');
-                }
-            } catch(e) {
-                alert('Gagal mengimpor. Pastikan kode JSON valid!');
-            }
-        }
-
-        // History Management
-        function saveHistory() {
-            historyStack = historyStack.slice(0, historyStep + 1);
-            historyStack.push(JSON.stringify(placedItems));
-            historyStep = historyStack.length - 1;
-            updateUndoRedoButtons();
-        }
-
-        function undo() {
-            if(historyStep > 0) {
-                historyStep--;
-                placedItems = JSON.parse(historyStack[historyStep]);
-                setActiveItem(null);
+                const json = document.getElementById('share-json-input').value;
+                placedItems = JSON.parse(json);
+                saveHistory();
                 renderRoomItems();
-                updateUndoRedoButtons();
-                showToast('Langkah diurungkan');
-            }
-        }
-
-        function redo() {
-            if(historyStep < historyStack.length - 1) {
-                historyStep++;
-                placedItems = JSON.parse(historyStack[historyStep]);
-                setActiveItem(null);
-                renderRoomItems();
-                updateUndoRedoButtons();
-                showToast('Langkah diulangi');
-            }
-        }
-
-        function updateUndoRedoButtons() {
-            document.getElementById('btn-undo').disabled = (historyStep <= 0);
-            document.getElementById('btn-redo').disabled = (historyStep >= historyStack.length - 1);
-        }
-
-        // Preview & Image Export Engine with Watermark
-        function togglePreviewMode() {
-            const overlay = document.getElementById('preview-overlay');
-            const container = document.getElementById('preview-container');
-            
-            if(overlay.classList.contains('hidden')) {
-                setActiveItem(null);
-                const roomCanvas = document.getElementById('room-canvas');
-                const clone = roomCanvas.cloneNode(true);
-                
-                const cloneToolbar = clone.querySelector('#floating-toolbar');
-                if(cloneToolbar) cloneToolbar.remove();
-
-                container.innerHTML = '';
-                container.appendChild(clone);
-                overlay.classList.remove('hidden');
-            } else {
-                overlay.classList.add('hidden');
+                closeShareModal();
+                showToast('Desain berhasil diimpor!');
+            } catch (err) {
+                showToast('Format kode JSON tidak valid!');
             }
         }
 
@@ -1071,7 +865,6 @@
             const ctx = canvas.getContext('2d');
             ctx.scale(2, 2);
 
-            // Wall & Floor Backgrounds
             const wallColor = getComputedStyle(document.getElementById('room-wall')).backgroundColor;
             ctx.fillStyle = wallColor;
             ctx.fillRect(0, 0, width, height * 0.68);
@@ -1081,12 +874,12 @@
 
             const drawWatermark = () => {
                 ctx.save();
-                ctx.font = 'bold 28px "Dancing Script", cursive, sans-serif';
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+                ctx.font = 'bold 30px "Dancing Script", cursive, sans-serif';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'bottom';
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowBlur = 4;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 6;
                 ctx.fillText('by Sasa', width - 20, height - 15);
                 ctx.restore();
             };
@@ -1094,7 +887,7 @@
             let loadedCount = 0;
             const sortedItems = [...placedItems].sort((a,b) => a.zIndex - b.zIndex);
 
-            if(sortedItems.length === 0) {
+            if (sortedItems.length === 0) {
                 drawWatermark();
                 downloadCanvas(canvas);
                 return;
@@ -1118,7 +911,7 @@
                     URL.revokeObjectURL(url);
                     loadedCount++;
 
-                    if(loadedCount === sortedItems.length) {
+                    if (loadedCount === sortedItems.length) {
                         drawWatermark();
                         downloadCanvas(canvas);
                     }
@@ -1129,20 +922,22 @@
 
         function downloadCanvas(canvas) {
             const link = document.createElement('a');
-            link.download = `Desain_Interior_by_Sasa_${Date.now()}.png`;
+            link.download = `Desain-Interior-by-Sasa-${Date.now()}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
-            showToast('Gambar desain disimpan!');
         }
 
-        // Toast Helper
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar-catalog');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
         function showToast(msg) {
             const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = msg;
-            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
-            
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0');
             setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                toast.classList.add('opacity-0');
             }, 2500);
         }
     </script>
